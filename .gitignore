@@ -1,0 +1,12 @@
+# 构建产物
+build/
+*.app
+*.dmg
+
+# macOS
+.DS_Store
+._*
+
+# Xcode
+xcuserdata/
+DerivedData/
