@@ -1,0 +1,83 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          sw_vers
+          swiftc --version
+
+      - name: Build (ad-hoc signed)
+        run: FORCE_ADHOC=1 ./build.sh
+
+      - name: Package
+        run: |
+          cd build
+          ditto -c -k --sequesterRsrc --keepParent MenuBarSqueeze.app MenuBarSqueeze.app.zip
+          shasum -a 256 MenuBarSqueeze.app.zip | tee MenuBarSqueeze.app.zip.sha256
+          ls -lh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MenuBarSqueeze-app
+          path: |
+            build/MenuBarSqueeze.app.zip
+            build/MenuBarSqueeze.app.zip.sha256
+
+      - name: Verify the app actually launches
+        run: |
+          # 冒烟测试：启动后确认进程存活、并生成了诊断文件
+          rm -f /tmp/menubarsqueeze-ax.txt
+          open -a "$PWD/build/MenuBarSqueeze.app"
+          sleep 6
+          pgrep -f MenuBarSqueeze && echo "process alive ✅"
+          ls -la /tmp/menubarsqueeze-ax.txt && cat /tmp/menubarsqueeze-ax.txt
+          pkill -f MenuBarSqueeze || true
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/MenuBarSqueeze.app.zip
+            build/MenuBarSqueeze.app.zip.sha256
+          generate_release_notes: true
+          body: |
+            ## MenuBarSqueeze ${{ github.ref_name }}
+
+            A native macOS menu bar utility that makes **every** status item reachable —
+            including the ones that don't fit or are hidden under the notch.
+
+            ![screenshot](https://raw.githubusercontent.com/zs851/menubarsqueeze/main/docs/screenshot.png)
+
+            ### Install
+
+            1. Download **`MenuBarSqueeze.app.zip`** below and unzip it
+            2. Move `MenuBarSqueeze.app` into `/Applications`
+            3. First launch — the app is **not notarized**, so either:
+               - right-click the app → **Open** → **Open** again, or
+               - run: `xattr -dr com.apple.quarantine /Applications/MenuBarSqueeze.app`
+            4. Grant **Accessibility** permission when prompted
+               (System Settings › Privacy & Security › Accessibility)
+            5. Click the **▾** triangle in the menu bar and pick any item
+
+            ### Notes
+
+            - Requires macOS 13+ (Apple Silicon)
+            - Built from `${{ github.sha }}` on a GitHub macOS runner, ad-hoc signed
+            - SHA-256 checksum is attached as `MenuBarSqueeze.app.zip.sha256`

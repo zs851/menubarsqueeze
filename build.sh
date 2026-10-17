@@ -15,9 +15,10 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 echo "==> 复制 Info.plist"
 cp "$DIR/Info.plist" "$APP/Contents/Info.plist"
 
-echo "==> 编译（swiftc -O）"
+ARCH="$(uname -m)"          # arm64 / x86_64，CI 与本机都适用
+echo "==> 编译（swiftc -O, target ${ARCH}-apple-macos13.0）"
 swiftc -O \
-  -target arm64-apple-macos13.0 \
+  -target "${ARCH}-apple-macos13.0" \
   -framework AppKit \
   -o "$BIN" \
   "$DIR/main.swift"
@@ -25,7 +26,11 @@ swiftc -O \
 echo "==> 代码签名"
 # 优先用 Apple Development 证书：指定要求(DR)基于证书+BundleID，跨重编译稳定，
 # 「辅助功能」授权不会被撤销。没有证书才退回 ad-hoc（每次重编译都要重新授权）。
-IDENTITY="$(security find-identity -v -p codesigning 2>/dev/null | awk -F'"' '/Apple Development/ && !/REVOKED/ {print $2; exit}')"
+if [ "${FORCE_ADHOC:-0}" = "1" ]; then
+  IDENTITY=""            # 发布/CI：强制 ad-hoc，不嵌入个人开发证书
+else
+  IDENTITY="$(security find-identity -v -p codesigning 2>/dev/null | awk -F'"' '/Apple Development/ && !/REVOKED/ {print $2; exit}')"
+fi
 if [ -n "${IDENTITY:-}" ]; then
   echo "    使用证书: $IDENTITY"
   if codesign --force --sign "$IDENTITY" "$APP" >/dev/null 2>&1; then
