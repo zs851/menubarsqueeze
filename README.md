@@ -53,9 +53,23 @@ Collapsing sets the divider's `NSStatusItem.length` to `min(screenWidth × 2, 10
 
 ## Build & install
 
+### Install a prebuilt release
+
+Download **`MenuBarSqueeze-x.y.z.dmg`** from [Releases](../../releases), open it, drag the app into **Applications**.
+The app is not notarized, so on first launch: right-click → **Open**, or
+
+```bash
+xattr -dr com.apple.quarantine /Applications/MenuBarSqueeze.app
+```
+
+A `.zip` is published alongside the DMG (handy for Homebrew casks and scripts).
+
+### Build from source
+
 ```bash
 ./build.sh            # build into ./build/MenuBarSqueeze.app
 ./build.sh install    # build + copy to /Applications + launch
+FORCE_ADHOC=1 ./build.sh   # sign ad-hoc (used by CI/releases)
 ```
 
 Signing behaviour: if an **Apple Development** certificate exists in your keychain, it is used — this keeps the Accessibility grant valid across rebuilds. Otherwise the app is signed ad-hoc, and **you must re-grant Accessibility after every rebuild**.

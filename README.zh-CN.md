@@ -54,9 +54,23 @@
 
 ## 编译与安装
 
+### 安装现成版本
+
+到 [Releases](../../releases) 下载 **`MenuBarSqueeze-x.y.z.dmg`**，打开后把 App 拖进「应用程序」。
+本 App 未做公证，首次打开请：右键 → **打开**，或执行
+
+```bash
+xattr -dr com.apple.quarantine /Applications/MenuBarSqueeze.app
+```
+
+DMG 旁边也会附一个 `.zip`（备用；Homebrew cask 与自动化脚本常用）。
+
+### 从源码编译
+
 ```bash
 ./build.sh            # 构建到 ./build/MenuBarSqueeze.app
 ./build.sh install    # 构建 + 复制到 /Applications + 启动
+FORCE_ADHOC=1 ./build.sh   # 强制 ad-hoc 签名（CI 与发布用）
 ```
 
 签名策略：钥匙串里有 **Apple Development** 证书就优先用它 —— 这样**重编译后辅助功能授权依然有效**；

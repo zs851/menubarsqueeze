@@ -24,20 +24,33 @@ jobs:
       - name: Build (ad-hoc signed)
         run: FORCE_ADHOC=1 ./build.sh
 
-      - name: Package
+      - name: Package (DMG + zip)
         run: |
           cd build
+          # 1) DMG —— macOS 标准分发格式：打开后把 App 拖进「应用程序」
+          STAGE="$(mktemp -d)"
+          cp -R MenuBarSqueeze.app "$STAGE/"
+          ln -s /Applications "$STAGE/Applications"
+          hdiutil create -volname "MenuBarSqueeze" -srcfolder "$STAGE" -ov -format UDZO \
+            "MenuBarSqueeze-${GITHUB_REF_NAME}.dmg"
+          rm -rf "$STAGE"
+
+          # 2) zip —— 备用（Homebrew cask / 自动化脚本常用）
           ditto -c -k --sequesterRsrc --keepParent MenuBarSqueeze.app MenuBarSqueeze.app.zip
-          shasum -a 256 MenuBarSqueeze.app.zip | tee MenuBarSqueeze.app.zip.sha256
+
+          # 校验值
+          shasum -a 256 "MenuBarSqueeze-${GITHUB_REF_NAME}.dmg" MenuBarSqueeze.app.zip > SHA256SUMS.txt
+          cat SHA256SUMS.txt
           ls -lh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MenuBarSqueeze-app
+          name: MenuBarSqueeze-packages
           path: |
-            build/MenuBarSqueeze.app.zip
-            build/MenuBarSqueeze.app.zip.sha256
+            build/*.dmg
+            build/*.zip
+            build/SHA256SUMS.txt
 
       - name: Verify the app actually launches
         run: |
@@ -54,8 +67,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            build/MenuBarSqueeze.app.zip
-            build/MenuBarSqueeze.app.zip.sha256
+            build/*.dmg
+            build/*.zip
+            build/SHA256SUMS.txt
           generate_release_notes: true
           body: |
             ## MenuBarSqueeze ${{ github.ref_name }}
@@ -72,24 +86,26 @@ jobs:
 
             ### Install / 安装
 
-            1. Download **`MenuBarSqueeze.app.zip`** below and unzip it
-               下载下面的 **`MenuBarSqueeze.app.zip`** 并解压
-            2. Move `MenuBarSqueeze.app` into `/Applications`
-               把 `MenuBarSqueeze.app` 拖进「应用程序」
-            3. First launch — the app is **not notarized** / 首次打开（本 App 未做公证）:
+            **DMG（推荐 / recommended）**
+
+            1. Download **`MenuBarSqueeze-${{ github.ref_name }}.dmg`** and open it
+               下载并打开 **`MenuBarSqueeze-${{ github.ref_name }}.dmg`**
+            2. Drag **MenuBarSqueeze** into **Applications** / 把 App 拖进「应用程序」
+            3. First launch — the app is **not notarized** / 首次打开（未公证）:
                - right-click the app → **Open** → **Open** again / 右键 → 打开 → 再点「打开」
-               - or / 或执行: `xattr -dr com.apple.quarantine /Applications/MenuBarSqueeze.app`
+               - or / 或: `xattr -dr com.apple.quarantine /Applications/MenuBarSqueeze.app`
             4. Grant **Accessibility** permission when prompted
                按提示授予**辅助功能**权限（系统设置 › 隐私与安全性 › 辅助功能）
             5. Click the **▾** triangle in the menu bar and pick any item
                点菜单栏的 **▾** 三角，然后点列表里的任意一项
+
+            **zip（备用 / alternative）** — 解压后把 `MenuBarSqueeze.app` 拖进「应用程序」即可。
 
             ### Notes / 说明
 
             - Requires **macOS 13+** (Apple Silicon) / 需要 **macOS 13 以上**（Apple 芯片）
             - Built from `${{ github.sha }}` on a GitHub macOS runner, **ad-hoc signed**
               由 GitHub macOS runner 构建，**ad-hoc 签名**
-            - SHA-256 checksum attached as `MenuBarSqueeze.app.zip.sha256`
-              随附 SHA-256 校验文件 `MenuBarSqueeze.app.zip.sha256`
+            - Checksums / 校验值: `SHA256SUMS.txt`
             - Full docs / 完整文档: [README](https://github.com/zs851/menubarsqueeze#readme) ·
               [中文说明](https://github.com/zs851/menubarsqueeze/blob/main/README.zh-CN.md)
