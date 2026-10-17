@@ -4,8 +4,10 @@ A tiny **native macOS menu bar utility** (Swift + AppKit, zero dependencies) tha
 
 > Menu bar icons that don't fit — or get hidden under the notch — are still **reachable**.
 
+![MenuBarSqueeze dropdown listing every menu bar item](docs/screenshot.png)
+
 <p align="center">
-  <em>Click the ▾ triangle → a dropdown lists every menu bar item, with icons → click one to open its menu.</em>
+  <em>▾ triangle in the menu bar → a dropdown listing all status items with icons → click one to open its menu.</em>
 </p>
 
 ## Why this exists
