@@ -1,5 +1,7 @@
 # MenuBarSqueeze
 
+**中文** | [English](README.md)
+
 一个**原生 macOS 菜单栏小工具**（Swift + AppKit，零第三方依赖），解决带刘海 MacBook 的老问题：
 
 > 菜单栏放不下的图标、被刘海盖住点不到的图标 —— **依然够得着**。

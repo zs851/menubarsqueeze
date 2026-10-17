@@ -1,5 +1,7 @@
 # MenuBarSqueeze
 
+**English** | [中文](README.zh-CN.md)
+
 A tiny **native macOS menu bar utility** (Swift + AppKit, zero dependencies) that fixes the notched-MacBook problem:
 
 > Menu bar icons that don't fit — or get hidden under the notch — are still **reachable**.

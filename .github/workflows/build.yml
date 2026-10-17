@@ -61,23 +61,35 @@ jobs:
             ## MenuBarSqueeze ${{ github.ref_name }}
 
             A native macOS menu bar utility that makes **every** status item reachable —
-            including the ones that don't fit or are hidden under the notch.
+            including the ones that don't fit, or that macOS hides under the notch.
+
+            原生 macOS 菜单栏小工具：让**每一个**状态栏图标都够得着 ——
+            包括放不下的、以及被刘海盖住、屏幕上根本点不到的那些。
 
             ![screenshot](https://raw.githubusercontent.com/zs851/menubarsqueeze/main/docs/screenshot.png)
 
-            ### Install
+            ---
+
+            ### Install / 安装
 
             1. Download **`MenuBarSqueeze.app.zip`** below and unzip it
+               下载下面的 **`MenuBarSqueeze.app.zip`** 并解压
             2. Move `MenuBarSqueeze.app` into `/Applications`
-            3. First launch — the app is **not notarized**, so either:
-               - right-click the app → **Open** → **Open** again, or
-               - run: `xattr -dr com.apple.quarantine /Applications/MenuBarSqueeze.app`
+               把 `MenuBarSqueeze.app` 拖进「应用程序」
+            3. First launch — the app is **not notarized** / 首次打开（本 App 未做公证）:
+               - right-click the app → **Open** → **Open** again / 右键 → 打开 → 再点「打开」
+               - or / 或执行: `xattr -dr com.apple.quarantine /Applications/MenuBarSqueeze.app`
             4. Grant **Accessibility** permission when prompted
-               (System Settings › Privacy & Security › Accessibility)
+               按提示授予**辅助功能**权限（系统设置 › 隐私与安全性 › 辅助功能）
             5. Click the **▾** triangle in the menu bar and pick any item
+               点菜单栏的 **▾** 三角，然后点列表里的任意一项
 
-            ### Notes
+            ### Notes / 说明
 
-            - Requires macOS 13+ (Apple Silicon)
-            - Built from `${{ github.sha }}` on a GitHub macOS runner, ad-hoc signed
-            - SHA-256 checksum is attached as `MenuBarSqueeze.app.zip.sha256`
+            - Requires **macOS 13+** (Apple Silicon) / 需要 **macOS 13 以上**（Apple 芯片）
+            - Built from `${{ github.sha }}` on a GitHub macOS runner, **ad-hoc signed**
+              由 GitHub macOS runner 构建，**ad-hoc 签名**
+            - SHA-256 checksum attached as `MenuBarSqueeze.app.zip.sha256`
+              随附 SHA-256 校验文件 `MenuBarSqueeze.app.zip.sha256`
+            - Full docs / 完整文档: [README](https://github.com/zs851/menubarsqueeze#readme) ·
+              [中文说明](https://github.com/zs851/menubarsqueeze/blob/main/README.zh-CN.md)
